@@ -1,0 +1,24 @@
+# Keil MDK 编译中间产物
+projects/**/keil5/out/
+projects/**/keil5/_build/
+*.i
+*.lst
+*.d
+*.dep
+*.axf
+*.map
+*.htm
+*.lnp
+*.crf
+
+# 工程目标文件（mode_24g/rf_protocol.o 为预编译库，保留）
+projects/**/*.o
+
+# Keil 用户个人配置 / 调试配置
+*.uvguix.*
+*.uvoptx
+JLinkSettings.ini
+
+# VS Code 插件生成
+projects/**/keil5/.vscode/uv4.log
+projects/**/keil5/.vscode/uv4.log.lock
