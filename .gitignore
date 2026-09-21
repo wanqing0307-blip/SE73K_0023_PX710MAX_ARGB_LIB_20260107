@@ -11,8 +11,6 @@ projects/**/keil5/_build/
 *.lnp
 *.crf
 
-# 工程目标文件（mode_24g/rf_protocol.o 为预编译库，保留）
-projects/**/*.o
 
 # Keil 用户个人配置 / 调试配置
 *.uvguix.*
@@ -22,6 +20,9 @@ JLinkSettings.ini
 # VS Code 插件生成
 projects/**/keil5/.vscode/uv4.log
 projects/**/keil5/.vscode/uv4.log.lock
+
+# local helper script
+push_to_github.bat
 
 # 主机测试产物
 tests/host/_out/
