@@ -437,13 +437,13 @@ void scan_key(void)
 ******************************************************************************/
 __RAM_CODE void matrix_debounce(void)
 {
-    uint8_t i, same;
+    uint8_t i;
 
     for(i=0; i<iMATRIX_COL_NUM; i++)
     {
-        same = ~(matrix_status[i] ^ matrix_raw_bak[i]);          // 两次采样一致的位
-        matrix_raw_bak[i] = matrix_status[i];
-        matrix_stable[i] = (matrix_stable[i] & ~same) | (matrix_status[i] & same);
+        matrix_stable[i] = key_debounce_step(matrix_status[i],
+                                             &matrix_raw_bak[i],
+                                             matrix_stable[i]);
         matrix_status[i] = matrix_stable[i];
     }
 }
