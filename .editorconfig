@@ -1,0 +1,10 @@
+# 仓库内源码统一 UTF-8（无 BOM）
+# Keil uVision 不读这个文件，要在 Edit -> Configuration -> Editor -> Encoding
+# 里选 "Encode in UTF-8 without signature"，否则中文注释会被存回 GBK。
+root = true
+
+[*]
+charset = utf-8
+
+[*.sh]
+end_of_line = lf

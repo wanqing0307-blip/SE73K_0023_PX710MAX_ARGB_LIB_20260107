@@ -23,3 +23,6 @@ projects/**/keil5/.vscode/uv4.log.lock
 
 # local helper script
 push_to_github.bat
+
+# 主机测试产物
+tests/host/_out/

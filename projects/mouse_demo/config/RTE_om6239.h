@@ -72,7 +72,9 @@
 #define RTE_GPIO0_REGISTER_CALLBACK                    0
 //   <o.0..1> RTE_GPIO0_IRQ_PRIORITY
 //     <0=>0   <1=>1   <2=>2   <3=>3
-#define RTE_GPIO0_IRQ_PRIORITY                         2
+// BLE 下协议栈把 RTC 设成 3，唤醒中断和 RTC 中断都会调 ex2_app_mouse_scan()，
+// 所以这里也必须是 3，不能比 RTC 高，否则会嵌套重入
+#define RTE_GPIO0_IRQ_PRIORITY                         3
 
 // <o.0> RTE_UART0
 #define RTE_UART0                                      (0)
@@ -169,7 +171,8 @@
 #define RTE_ENCODER_REGISTER_CALLBACK                  1
 //   <o.0..1> RTE_ENCODER_IRQ_PRIORITY
 //     <0=>0   <1=>1   <2=>2   <3=>3
-#define RTE_ENCODER_IRQ_PRIORITY                       2
+// 同 RTE_GPIO0_IRQ_PRIORITY：编码器中断也会调 ex2_app_mouse_scan()
+#define RTE_ENCODER_IRQ_PRIORITY                       3
 
 // <o.0> RTE_LEDC
 #define RTE_LEDC                                       1

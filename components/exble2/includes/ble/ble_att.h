@@ -259,8 +259,8 @@ typedef struct _ble_att_prepare_write_response_t ble_att_prepare_write_response_
 
 /* 3.4.6.3 Execute Write Request */
 __PACKED_STRUCT _ble_att_execute_write_request_t {
-  ///0x00 ¡§C Cancel all prepared writes
-  ///0x01 ¡§C Immediately write all pending prepared values 
+  ///0x00 - Cancel all prepared writes
+  ///0x01 - Immediately write all pending prepared values 
   uint8_t flags; //13
 };
 typedef struct _ble_att_execute_write_request_t ble_att_execute_write_request_t;

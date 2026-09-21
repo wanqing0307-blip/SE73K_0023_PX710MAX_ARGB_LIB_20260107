@@ -174,7 +174,8 @@
 // 电源其他
 //
 #define CHR_OK_PIN              (OM_GPIO0->DATA & (1<<(3*8+6)))
-#define USB_5V_PIN              (OM_GPIO0->DATA & (1<<(3*8+4)))
+#define USB_5V_WK_PIN           (3*8+4)         // 外部下拉，插线为高 -> 上升沿唤醒
+#define USB_5V_PIN              (OM_GPIO0->DATA & (1<<USB_5V_WK_PIN))
 #define LVD_PIN_MASK             (1<<(3*8+3))
 
 #define MODE_PIN                (3*8+5)
@@ -194,11 +195,6 @@
 //----------------------------------------------
 // 调试IO
 //
-#define TIMER_PIN               (3*8+4)
-
-#define CE_PIN                  (3*8+4)
-#define IRQ_PIN                 (3*8+4)
-
 #define UART_PIN                (2*8+2)
 //
 //----------------------------------------------------------------------------;

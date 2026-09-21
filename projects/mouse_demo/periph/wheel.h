@@ -54,6 +54,13 @@ extern uint8_t                  wheel_status;
 //-----------------------------------------------------------------------------;
 // 函数定义区
 //
+// ENCODER_CNT 是 4 位有符号数，且读一次硬件就清零，所以只能读一次
+static inline uint8_t wheel_cnt_to_data(uint32_t cnt)
+{
+    cnt &= 0x0F;
+    return (uint8_t)((cnt & 0x08) ? (cnt | 0xF0) : cnt);
+}
+
 extern void wheel_scan(void);
 
 //-----------------------------------------------------------------------------;

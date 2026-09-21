@@ -243,6 +243,12 @@ __RAM_CODE void bat_check(void)
     if(0 != CHR_OK_PIN)
         bat_status |= bcharge_ok;
 
+    if(bcharging_bak != (0 != (bat_status&bcharging)))
+    {                                           // 充放电切换，计数重来
+        bcharging_bak = (0 != (bat_status&bcharging));
+        bat_power_delay = 0;
+    }
+
     bat_dat = bat_voltage_check();
 
     if(0 != (bat_status&blvd_power_on))
@@ -306,6 +312,10 @@ __RAM_CODE void bat_check(void)
                 }
             }
         }
+        else
+        {                                       // 要连续偏高才算，否则清零
+            bat_power_delay = 0;
+        }
     }
     else
     {
@@ -333,6 +343,10 @@ __RAM_CODE void bat_check(void)
                     bbat_update = true;
                 }
             }
+        }
+        else
+        {                                       // 灯效负载造成的瞬时跌落不该累计
+            bat_power_delay = 0;
         }
     }
 }
@@ -385,6 +399,8 @@ void led_hint_process(void)
             OM_PMU->SW_RSVD1 |= PMU_SW_RSVD1_POWER_OFF;
             mouse_periph_wakeup_enable(WAKEUP_SLEEP_LEVEL2);
             drv_pmu_set_low_power_mode(PMU_LPM_DEEP_SLEEP);
+            while(1);                           // 和其它深睡入口一致：WFI 提前返回时，
+                                                // 外设时钟已被改写，不能往下跑
         }
         else
         {

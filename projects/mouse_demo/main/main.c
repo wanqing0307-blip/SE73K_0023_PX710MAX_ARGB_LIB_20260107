@@ -132,7 +132,8 @@ void mouse_periph_wakeup_enable(uint8_t mask)
 {
     OM_CRITICAL_BEGIN();
     drv_gpio_set_trig(OM_GPIO0, (1<<KEY_R0_PIN)|(1<<KEY_R1_PIN)|(1<<KEY_R2_PIN)|(1<<KEY_R3_PIN)| \
-                                (1<<KEY_R4_PIN)|(1<<KEY_R5_PIN)|(1<<KEY_R6_PIN)|(1<<KEY_R7_PIN), \
+                                (1<<KEY_R4_PIN)|(1<<KEY_R5_PIN)|(1<<KEY_R6_PIN)|(1<<KEY_R7_PIN)| \
+                                (1<<WHA_A_PIN)|(1<<WHA_B_PIN), \
                                  GPIO_TRIG_NONE);
     NVIC_ClearPendingIRQ(WAKEUP_GPIO0_IRQn);
     drv_pmu_clear_wakeup();
@@ -158,6 +159,8 @@ void mouse_periph_wakeup_enable(uint8_t mask)
 
         drv_pmu_wakeup_pin_set(WHA_A_PIN, PMU_PIN_WAKEUP_TYPE_FALL);
         drv_pmu_wakeup_pin_set(WHA_B_PIN, PMU_PIN_WAKEUP_TYPE_FALL);
+                                                // 插线唤醒：深睡时插充电线能醒来显示充电、退出低压关机
+        drv_pmu_wakeup_pin_set(USB_5V_WK_PIN, PMU_PIN_WAKEUP_TYPE_RISE);
         NVIC_SetPriority(WAKEUP_GPIO0_IRQn, RTE_GPIO0_IRQ_PRIORITY);
         NVIC_EnableIRQ(WAKEUP_GPIO0_IRQn);
         OM_ENCODER->EN |= (ENCODER_EN_INTERRUPT_EN_MASK|ENCODER_EN_WAKEUP_EN_MASK);
@@ -174,10 +177,13 @@ void mouse_periph_wakeup_enable(uint8_t mask)
 
         drv_pmu_wakeup_pin_set(WHA_A_PIN, PMU_PIN_WAKEUP_TYPE_DISABLE);
         drv_pmu_wakeup_pin_set(WHA_B_PIN, PMU_PIN_WAKEUP_TYPE_DISABLE);
+        drv_pmu_wakeup_pin_set(USB_5V_WK_PIN, PMU_PIN_WAKEUP_TYPE_DISABLE);
         NVIC_DisableIRQ(WAKEUP_GPIO0_IRQn);
 
         OM_PMU->PAD_PU_CTRL_1 = 0x200AAA25;
         MATRX_ALL_IN;
+        KEY_EX_HIGH;                            // 睡前被按在低电平，这里拉回高，
+                                                // 否则下一帧 ctrl_54e_inpull() 出不来下降沿
         OM_ENCODER->EN &= ~(ENCODER_EN_INTERRUPT_EN_MASK|ENCODER_EN_WAKEUP_EN_MASK);
         led_status_hint();
     }
@@ -223,7 +229,8 @@ int main(void)
     OM_PMU->PAD_BUF_EN &= ~LVD_PIN_MASK;
     OM_PMU->PAD_BUF_EN |= (1<<MODE_PIN);
 
-    OM_GPIO0->DATAOUT = 0xFFF7FFFF;
+    OM_GPIO0->DATAOUT = 0xFFF7FFFE;             // bit0=ARGB_OFF_PIN 低：灯带先不上电，
+                                                // 等 logo_process() 决定要不要点
     OM_GPIO0->OUTENSET = 0x040C0003;
     OM_GPIO0->OUTENCLR = ~0x040C0003;
     device_type = iDEVICE_TYPE_ERR;
@@ -379,6 +386,8 @@ soft_reset_process:
             while(1)
             {
                 evt_schedule();
+                drv_wdt_keep_alive(OM_WDT);     // 喂狗放主循环：RF中断喂狗的话，
+                                                // 扫描中断或主循环卡死都看不出来
                 if(true == bmode_swtich_valid)
                 {
                     ex2_hal_uninit();

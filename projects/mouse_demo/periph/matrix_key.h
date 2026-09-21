@@ -200,6 +200,16 @@ extern unsigned char    const   matrixkey_win_fn_tbl[];
 //-----------------------------------------------------------------------------;
 // 内部函数引用
 //
+// 去抖：连续两次采样一致的位才更新，其余位保持上一次的稳定值
+static inline uint8_t key_debounce_step(uint8_t raw, uint8_t *raw_bak, uint8_t stable)
+{
+    uint8_t same = (uint8_t)~(raw ^ *raw_bak);
+
+    *raw_bak = raw;
+
+    return (uint8_t)((stable & (uint8_t)~same) | (raw & same));
+}
+
 extern void matrixkey_scan(void);
 extern void scan_mode_swtich(uint8_t type);
 

@@ -89,13 +89,13 @@ typedef struct {
         __IO uint32_t SW_RSVD0;              //0x6c
         __IO uint32_t CPU_CONTEXT_ADDR;
     };
-    __IO uint32_t SW_RSVD1;                  //0x70     // ◊¥Ã¨–≈œ¢
-    __IO uint32_t SW_RSVD2;                  //0x74     // 2.4GÕ¨≤Ω◊÷
+    __IO uint32_t SW_RSVD1;                  //0x70     // Áä∂ÊÄÅ‰ø°ÊÅØ
+    __IO uint32_t SW_RSVD2;                  //0x74     // 2.4GÂêåÊ≠•Â≠ó
     __IO uint32_t SW_RSVD3;                  //0x78
     __IO uint32_t SW_RSVD4;                  //0x7c
     __IO uint32_t SW_RSVD5;                  //0x80
     __IO uint32_t SW_RSVD6;                  //0x84
-    __IO uint32_t SW_RSVD7;                  //0x88     // boot ∂±
+    __IO uint32_t SW_RSVD7;                  //0x88     // bootËØÜÂà´
 } OM_PMU_Type;
 
 

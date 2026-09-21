@@ -21,7 +21,7 @@ extern "C"
 #define PROFILE_HID_MOUSE              1
 #define PROFILE_HID_CONSUMER_CONTROL   1
 #define PROFILE_HID_KEYBOARD           1
-#define PROFILE_HID_BITMAP_KEYBOARD    1 /* È«ÎÞ³å¼üÅÌ */ 
+#define PROFILE_HID_BITMAP_KEYBOARD    1 /* å…¨æ— å†²é”®ç›˜ */ 
 
 /*===========================================================================*/
 /* Local variables and types.                                                */
