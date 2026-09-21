@@ -46,11 +46,7 @@ void wheel_scan(void)
 {
     if(OM_ENCODER->VALID&ENCODER_VALID_CNT_MASK)
     {
-        wheel_data = OM_ENCODER->CNT;
-        if(wheel_data & 0x08)
-            wheel_data |= 0xf0;
-        else
-            wheel_data &= 0x0f;
+        wheel_data = wheel_cnt_to_data(OM_ENCODER->CNT);
     }
 
     rtc_cur_value = drv_rtc_read(OM_RTC);

@@ -42,6 +42,9 @@ uint8_t                         key_fn_status[128];
 uint8_t                         gKeyScan_bak[iMATRIX_COL_NUM];
 uint8_t                         device_type_bak;
 
+static uint8_t                  matrix_raw_bak[iMATRIX_COL_NUM];
+static uint8_t                  matrix_stable[iMATRIX_COL_NUM];
+
 uint8_t                         decode_index;
 uint8_t                         col_index;
 
@@ -319,7 +322,7 @@ define_key_process:
 	    if((0==(key_ctrl&bkey_press_status)) && (0 == (define_key_ctrl&bcom_decode_ing)))
 		{
             multi_data_tmp_l = 0;
-            multi_data_tmp_l = 0;
+            multi_data_tmp_h = 0;
 	        memset(key_data_tmp, 0x00, 22);
 		}
 	}
@@ -361,7 +364,10 @@ uint8_t const matrixkey_c_tbl[] = {
 
 __RAM_CODE void ctrl_54e_inpull(void)
 {
+    OM_GPIO0->OUTENSET = (1u<<P32);                 // 先保证是输出
     OM_CRITICAL_BEGIN();
+    KEY_EX_HIGH;                                    // 睡醒后这条线可能停在低，
+    delayus(1);                                     // 先拉高，才做得出真正的下降沿
     KEY_EX_LOW;
     delayus(1);
     KEY_EX_HIGH;
@@ -423,6 +429,26 @@ void scan_key(void)
 }
 
 /******************************************************************************
+* 函数名称: matrix_debounce
+* 功能描述: 矩阵去抖
+* 输入参数:
+* 输出参数:
+* 说    明: 连续两次扫描一致的位才更新，扫描周期 4ms，滤掉 4ms 以内的抖动
+******************************************************************************/
+__RAM_CODE void matrix_debounce(void)
+{
+    uint8_t i, same;
+
+    for(i=0; i<iMATRIX_COL_NUM; i++)
+    {
+        same = ~(matrix_status[i] ^ matrix_raw_bak[i]);          // 两次采样一致的位
+        matrix_raw_bak[i] = matrix_status[i];
+        matrix_stable[i] = (matrix_stable[i] & ~same) | (matrix_status[i] & same);
+        matrix_status[i] = matrix_stable[i];
+    }
+}
+
+/******************************************************************************
 * 函数名称: matrixkey_scan
 * 功能描述: 矩阵按键扫描
 * 输入参数:
@@ -443,6 +469,7 @@ __RAM_CODE void matrixkey_scan(void)
     multi_data_tmp_h = 0;
 
     scan_key();
+    matrix_debounce();
     led_status_hint();
 
     k = 0;

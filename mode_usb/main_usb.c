@@ -32,6 +32,39 @@ extern unsigned char        sof_count;
 
 extern void                 hi5_usb_init(void);
 extern void                 usb_sleep(void);
+extern void                 usb_disconnect(void);
+
+/******************************************************************************
+* 函数名称: usb_vbus_lost()
+* 功能描述: 判断 USB 5V 是不是真的没了
+* 说    明: 连采三次，避免一次误读就去深睡
+******************************************************************************/
+static bool usb_vbus_lost(void)
+{
+    for(uint8_t i=0; i<3; i++)
+    {
+        if(0 != USB_5V_PIN)
+            return false;
+        delayus(1000);
+    }
+
+    return true;
+}
+
+/******************************************************************************
+* 函数名称: usb_power_down()
+* 功能描述: USB 档没有 5V 时进深度休眠
+* 说    明: 没有主机会来恢复，再等下去就是白耗电。唤醒 = 复位重启，
+*           按键和插线都能唤醒
+******************************************************************************/
+static void usb_power_down(void)
+{
+    usb_disconnect();
+    logo_off();
+    mouse_periph_wakeup_enable(WAKEUP_SLEEP_LEVEL2);
+    drv_pmu_set_low_power_mode(PMU_LPM_DEEP_SLEEP);
+    while(1);
+}
 
 /*********************************************************************
  * PUBLIC FUNCTIONS
@@ -134,6 +167,9 @@ int main_usb(void)
 ******************************************************************************/
 void usb_sleep(void)
 {
+    if(true == usb_vbus_lost())                 // 没插线/已拔线，不会再有主机来恢复
+        usb_power_down();
+
     if(0 == (usb_ctrl_flag&bsleep_eable))
     {
         usb_ctrl_flag &= ~busb_suspend_resume;
@@ -163,6 +199,8 @@ usb_sleep_diswakeup:
                 drv_pmu_set_low_power_mode(PMU_LPM_STOP1);
             if(0==(usb_ctrl_flag&busb_suspend_resume))
                 break;
+            if(true == usb_vbus_lost())         // 挂起期间被拔线
+                usb_power_down();
 
             for(uint8_t i=0; i<250; i++)
             {
@@ -185,6 +223,8 @@ usb_sleep_diswakeup:
                 drv_pmu_set_low_power_mode(PMU_LPM_STOP1);
 
             drv_wdt_keep_alive(OM_WDT);
+            if(true == usb_vbus_lost())         // 挂起期间被拔线，远程唤醒没有意义
+                usb_power_down();
             if(bperiph_int)
             {
                 bperiph_int = 0;

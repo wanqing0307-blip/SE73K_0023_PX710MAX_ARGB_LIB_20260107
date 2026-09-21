@@ -52,6 +52,7 @@
 #include "ex2_api.h"
 #include "main.h"
 #include "main_24g.h"
+#include "wheel.h"
 
 /*******************************************************************************
  * PUBLIC FUNCTIONS
@@ -107,7 +108,6 @@ __RAM_CODE void RF_IRQHandler(void)
     rf_irq_status = drv_rf_get_and_clear_irq_status();
     if(iDEVICE_TYPE_BT2 >= device_type)
     {
-        drv_wdt_keep_alive(OM_WDT);
         if(EXE_LINK_STATE_CONN==exe_stk_state)
             ll_conn_isr(rf_irq_status);
         else if(EXE_LINK_STATE_ADV==exe_stk_state)
@@ -192,11 +192,8 @@ void LEDC_IRQHandler(void)
 void ENCODER_IRQHandler(void)
 {
     if (OM_ENCODER->VALID & ENCODER_VALID_CNT_MASK) {
-        if(OM_ENCODER->CNT & 0x08) {
-            wheel_data = 0xf0|OM_ENCODER->CNT;
-        } else {
-            wheel_data = OM_ENCODER->CNT&0x0f;
-        }
+        wheel_data = wheel_cnt_to_data(OM_ENCODER->CNT);   // CNT 读一次就清零，
+                                                          // 读两次会丢步或读出反向
 
         bperiph_int =1;
         if(iDEVICE_TYPE_BT2 >= device_type)

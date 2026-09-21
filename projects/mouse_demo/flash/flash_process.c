@@ -184,6 +184,8 @@ void laod_mouse_status(void)
 
             key_mode = (flash_fifo[i+6]&0x03);
             bt_index = ((flash_fifo[i+6]>>2)&0x03);
+            if(iDEVICE_TYPE_BT2 < bt_index)     // 存坏了读出 3 会当成 24G，开机进错模式
+                bt_index = iDEVICE_TYPE_BT0;
             //device_type = ((flash_fifo[i+6]>>4)&0x07);  // 按键切换模式情况下才能打开 ！！！！！！！！
             bat_status &= 0xE0;
             bat_status |= (flash_fifo[i+7]&0x1F);
@@ -267,8 +269,8 @@ void laod_cfg_dpi(void)
                 led_speed_lev = iSPEED_LEV_2;
                 led_rgb_index = iPWM_RGB;           // 全彩
 
-                sleep_time_24g = 0x25;              // 24g：1分钟一级休眠，10分钟深度休眠
-                sleep_time_ble = 0x25;              // ble：1分钟一级休眠，10分钟深度休眠
+                sleep_time_24g = 0x25;              // 24g：空闲5分钟直接进深度休眠（二级时间表用不到）
+                sleep_time_ble = 0x25;              // ble：空闲5分钟一级休眠，再15分钟深度休眠
 
                 adv_cfg_value = 0x0001;
                 mouse_lod_set = 1;                  // 静默高度
