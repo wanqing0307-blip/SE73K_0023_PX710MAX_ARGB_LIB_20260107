@@ -1,0 +1,2 @@
+# 仓库开了 core.autocrlf，脚本被检出成 CRLF 时 sh 会执行失败
+*.sh text eol=lf
