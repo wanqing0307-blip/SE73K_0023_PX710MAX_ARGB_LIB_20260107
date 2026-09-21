@@ -66,11 +66,11 @@ bool   bperiph_int;
 extern bool bargb_valid;
 
 //----------------------------------------------------------------------------
-//±í¸ñ¶¨ÒåÇø
+//è¡¨æ ¼å®šä¹‰åŒº
 //
 
 //============================================================================;
-// ´úÂëÇø                                                                     ;
+// ä»£ç åŒº                                                                     ;
 //============================================================================;
 
 __RAM_CODE void RTC_IRQHandler(void)
@@ -192,8 +192,8 @@ void LEDC_IRQHandler(void)
 void ENCODER_IRQHandler(void)
 {
     if (OM_ENCODER->VALID & ENCODER_VALID_CNT_MASK) {
-        wheel_data = wheel_cnt_to_data(OM_ENCODER->CNT);   // CNT ¶ÁÒ»´Î¾ÍÇåÁã£¬
-                                                          // ¶ÁÁ½´Î»á¶ª²½»ò¶Á³ö·´Ïò
+        wheel_data = wheel_cnt_to_data(OM_ENCODER->CNT);   // CNT è¯»ä¸€æ¬¡å°±æ¸…é›¶ï¼Œ
+                                                          // è¯»ä¸¤æ¬¡ä¼šä¸¢æ­¥æˆ–è¯»å‡ºåå‘
 
         bperiph_int =1;
         if(iDEVICE_TYPE_BT2 >= device_type)
